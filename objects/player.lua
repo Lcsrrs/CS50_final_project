@@ -1,7 +1,7 @@
 local Laser = require "objects/laser"
 require "globals"
 
-function Player() 
+function Player(num_lives) 
     local start_angle = 0
     local LASER_MAX_TIME = 0.025
     local MAX_LASERS = 10
@@ -25,6 +25,7 @@ function Player()
             y = 0,
             speed = 5,
         },
+        lives = num_lives or 3,
 
         shootLaser = function(self)
             if #self.lasers < MAX_LASERS then
@@ -85,9 +86,38 @@ function Player()
                 love.graphics.setColor (1, 234/255, 0, opacity)
                 love.graphics.circle("fill", self.x, self.y, sprite_width * 0.5)                
             end
-            
+        end,
 
+        draw_lives = function(self, faded)
+            local opacity = 1
 
+            if faded then
+                opacity = 0.2
+            end
+
+            if self.lives == 2 then
+                love.graphics.setColor(1, 1, 0.5, opacity)
+            elseif self.lives == 1 then
+                love.graphics.setColor(1, 0.2, 0.2, opacity)
+            else
+                love.graphics.setColor(1, 1, 1, opacity)
+            end
+
+            local x_pos, y_pos = 45, 30
+            sprite_height = self.sprite:getHeight()
+            sprite_width = self.sprite:getWidth()
+
+            for i = 1, self.lives do
+                if self.exploding then
+                    if i == self.lives then
+                        love.graphics.setColor(1, 0, 0, opacity)
+                    end
+                end
+                love.graphics.push()
+                love.graphics.setColor(1, 1, 1, opacity)
+                love.graphics.draw(self.sprite, (i*sprite_width + 10) + x_pos, y_pos, 1, 1, 1, sprite_width/2 , sprite_height/2)
+                love.graphics.pop()
+            end
         end,
 
 

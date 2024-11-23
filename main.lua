@@ -1,5 +1,6 @@
 local Player = require "objects/player"
 local Game = require "states/game"
+local Menu = require "states/menu"
 require "globals"
 
 math.randomseed(os.time())
@@ -7,12 +8,13 @@ math.randomseed(os.time())
 WINDOW_WIDTH, WINDOW_HEIGHT = love.window.getMode()
 --WINDOW_WIDTH, WINDOW_HEIGHT = WINDOW_WIDTH * 0.8, WINDOW_HEIGHT * 0.8
 
-function love.load()    
+function love.load()   
+    love.mouse.setVisible(false) 
     love.window.setMode(WINDOW_WIDTH,WINDOW_HEIGHT, {fullscreen = false, vsync = true})
     
     player = Player()
     game = Game()
-    game:startNewGame(player)
+    menu = Menu(game, player)
 
 end
 
@@ -29,7 +31,16 @@ function love.update(dt)
                     destroy_ast = true
                 end
             else
-                player.explode_time = player.explode_time - 1            
+                player.explode_time = player.explode_time - 1
+                
+                if player.explode_time == 0 then
+                    if player.lives - 1 <= 0 then
+                        game:changeGameState("ended")
+                        return
+                    end
+
+                    player = Player(player.lives - 1)
+                end
             end
             for _, laser in pairs(player.lasers) do
                 if calculateDistance(laser.x, laser.y, asteroid.x, asteroid.y) < asteroid.radius then
@@ -39,13 +50,24 @@ function love.update(dt)
             end
 
             if destroy_ast then
-                destroy_ast = false
-                asteroid:destroy(asteroids, ast_index, game)
+                if player.lives - 1 <= 0 then
+                    if player.explode_time == 0 then
+                        destroy_ast = false
+                        asteroid:destroy(asteroids, ast_index, game)
+                    end
+                else
+                    destroy_ast = false
+                    asteroid:destroy(asteroids, ast_index, game)
+                end
             end
 
             asteroid:move(dt)
         end
 
+    elseif game.state.menu then
+        menu:run(clickedMouse)
+        
+        clickMouse = false
     end
     
     if game.state.running then
@@ -88,6 +110,8 @@ function love.update(dt)
         if button == 1 then
             if game.state.running then
                 player:shootLaser()
+            else
+                clickedMouse = true
             end
         end
     end
@@ -96,6 +120,7 @@ end
 
 function love.draw()
     if game.state.running or game.state.paused then
+        player:draw_lives(game.state.paused)
         player:draw(game.state.paused)
 
         for _, asteroid in pairs(asteroids) do
@@ -103,8 +128,11 @@ function love.draw()
         end
 
         game:draw(game.state.paused)
+    elseif game.state.menu then
+        menu:draw()
     end
 
+    love.graphics.circle("fill", mouse_x, mouse_y, 10)
 
     love.graphics.push()
 

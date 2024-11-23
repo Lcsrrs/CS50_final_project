@@ -1,17 +1,16 @@
 local Player = require "objects/player"
 local Game = require "states/game"
+require "globals"
 
 math.randomseed(os.time())
 
 WINDOW_WIDTH, WINDOW_HEIGHT = love.window.getMode()
 --WINDOW_WIDTH, WINDOW_HEIGHT = WINDOW_WIDTH * 0.8, WINDOW_HEIGHT * 0.8
 
-function love.load()
-    local show_debugging = true
-    
+function love.load()    
     love.window.setMode(WINDOW_WIDTH,WINDOW_HEIGHT, {fullscreen = false, vsync = true})
     
-    player = Player(show_debugging)
+    player = Player()
     game = Game()
     game:startNewGame(player)
 
@@ -21,9 +20,29 @@ function love.update(dt)
     mouse_x, mouse_y = love.mouse.getPosition()
     
     if game.state.running then
-        player:movePlayer()
+        player:movePlayer(dt)
 
         for ast_index, asteroid in pairs(asteroids) do
+            if not player.exploding then
+                if calculateDistance(player.x, player.y, asteroid.x, asteroid.y) < asteroid.radius then
+                    player:explode()
+                    destroy_ast = true
+                end
+            else
+                player.explode_time = player.explode_time - 1            
+            end
+            for _, laser in pairs(player.lasers) do
+                if calculateDistance(laser.x, laser.y, asteroid.x, asteroid.y) < asteroid.radius then
+                    laser:explode()
+                    asteroid:destroy(asteroids, ast_index, game)
+                end
+            end
+
+            if destroy_ast then
+                destroy_ast = false
+                asteroid:destroy(asteroids, ast_index, game)
+            end
+
             asteroid:move(dt)
         end
 
@@ -61,6 +80,14 @@ function love.update(dt)
                 game:changeGameState("paused")
             elseif game.state.paused then
                 game:changeGameState("running")
+            end
+        end
+    end
+
+    function love.mousepressed(x, y, button, istouch, presses)
+        if button == 1 then
+            if game.state.running then
+                player:shootLaser()
             end
         end
     end

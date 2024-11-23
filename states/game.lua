@@ -42,10 +42,10 @@ function Game()
             local as_x = math.floor(math.random(love.graphics.getWidth()))
             local as_y = math.floor(math.random(love.graphics.getHeight()))
 
-            table.insert(asteroids, 1, Asteroids(as_x, as_y, 100, self.level, true))
-            table.insert(asteroids, 1, Asteroids(math.floor(math.random(love.graphics.getWidth())), math.floor(math.random(love.graphics.getHeight())), 100, self.level, true))
-            table.insert(asteroids, 1, Asteroids(math.floor(math.random(love.graphics.getWidth())), math.floor(math.random(love.graphics.getHeight())), 100, self.level, true))
-            table.insert(asteroids, 1, Asteroids(math.floor(math.random(love.graphics.getWidth())), math.floor(math.random(love.graphics.getHeight())), 100, self.level, true))
+            table.insert(asteroids, 1, Asteroids(as_x, as_y, 100, self.level))
+            table.insert(asteroids, 1, Asteroids(math.floor(math.random(love.graphics.getWidth())), math.floor(math.random(love.graphics.getHeight())), 100, self.level))
+            table.insert(asteroids, 1, Asteroids(math.floor(math.random(love.graphics.getWidth())), math.floor(math.random(love.graphics.getHeight())), 100, self.level))
+            table.insert(asteroids, 1, Asteroids(math.floor(math.random(love.graphics.getWidth())), math.floor(math.random(love.graphics.getHeight())), 100, self.level))
         end
     }
 end

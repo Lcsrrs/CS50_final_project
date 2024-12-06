@@ -7,11 +7,15 @@ function Player(num_lives)
     local MAX_LASERS = 10
 
     local EXPLODE_DUR = 3
+    local USABLE_BLINKS = 10 * 2
 
     return {
         x = love.graphics.getWidth() / 2,
         y = love.graphics.getHeight() / 2,
         sprite = love.graphics.newImage("sprites/spaceship.PNG", {dpiscale = 20}),
+        invencible = true,
+        invencible_seen = true,
+        time_blinked = USABLE_BLINKS,
         lasers = {},
         orientation = 0,
         explode_time = 0,
@@ -26,6 +30,9 @@ function Player(num_lives)
             speed = 5,
         },
         lives = num_lives or 3,
+
+        sprite_height = love.graphics.newImage("sprites/spaceship.PNG", {dpiscale = 20}):getHeight(),
+        sprite_width = love.graphics.newImage("sprites/spaceship.PNG", {dpiscale = 20}):getWidth(),
 
         shootLaser = function(self)
             if #self.lasers < MAX_LASERS then
@@ -49,13 +56,13 @@ function Player(num_lives)
                 opacity = 0.2
             end
 
-            sprite_height = self.sprite:getHeight()
-            sprite_width = self.sprite:getWidth()
+            self.sprite_height = self.sprite:getHeight()
+            self.sprite_width = self.sprite:getWidth()
 
             if show_debugging then
                 love.graphics.push()
                 love.graphics.setColor(1, 0, 0)
-                love.graphics.circle("line", self.x, self.y, sprite_width/2)
+                love.graphics.circle("line", self.x, self.y, self.sprite_width/2)
                 love.graphics.pop()
 
                 love.graphics.push()
@@ -67,10 +74,16 @@ function Player(num_lives)
 
             end
 
+            if self.invencible_seen then
+                love.graphics.setColor(1, 1, 1, faded and opacity or 0.5)
+            else
+                love.graphics.setColor(1, 1, 1, opacity)
+            end
+
             if not self.exploding then
                 love.graphics.push()
                 love.graphics.setColor(1, 1, 1, opacity)
-                love.graphics.draw(self.sprite, self.x, self.y, self.orientation, 1, 1, sprite_width/2 , sprite_height/2)
+                love.graphics.draw(self.sprite, self.x, self.y, self.orientation, 1, 1, self.sprite_width/2 , self.sprite_height/2)
                 love.graphics.pop()
 
                 for _, laser in pairs(self.lasers) do
@@ -78,13 +91,13 @@ function Player(num_lives)
                 end
             else
                 love.graphics.setColor (1, 0, 0, opacity)
-                love.graphics.circle("fill", self.x, self.y, sprite_width * 1.5)
+                love.graphics.circle("fill", self.x, self.y, self.sprite_width * 1.5)
 
                 love.graphics.setColor (1, 158/255, 0, opacity)
-                love.graphics.circle("fill", self.x, self.y, sprite_width)                
+                love.graphics.circle("fill", self.x, self.y, self.sprite_width)                
                 
                 love.graphics.setColor (1, 234/255, 0, opacity)
-                love.graphics.circle("fill", self.x, self.y, sprite_width * 0.5)                
+                love.graphics.circle("fill", self.x, self.y, self.sprite_width * 0.5)                
             end
         end,
 
@@ -104,8 +117,8 @@ function Player(num_lives)
             end
 
             local x_pos, y_pos = 45, 30
-            sprite_height = self.sprite:getHeight()
-            sprite_width = self.sprite:getWidth()
+            self.sprite_height = self.sprite:getHeight()
+            self.sprite_width = self.sprite:getWidth()
 
             for i = 1, self.lives do
                 if self.exploding then
@@ -115,7 +128,7 @@ function Player(num_lives)
                 end
                 love.graphics.push()
                 love.graphics.setColor(1, 1, 1, opacity)
-                love.graphics.draw(self.sprite, (i*sprite_width + 10) + x_pos, y_pos, 1, 1, 1, sprite_width/2 , sprite_height/2)
+                love.graphics.draw(self.sprite, (i*self.sprite_width + 10) + x_pos, y_pos, 1, 1, 1, self.sprite_width/2 , self.sprite_height/2)
                 love.graphics.pop()
             end
         end,
@@ -126,10 +139,28 @@ function Player(num_lives)
             local friction = 0.7
             local mouse_x = love.mouse.getX()
             local mouse_y = love.mouse.getY()
-            sprite_height = self.sprite:getHeight()
-            sprite_width = self.sprite:getWidth()
-            self.orientation = math.atan2(self.y - sprite_height/2 - mouse_y, self.x - sprite_width/2 - mouse_x) + 1.47*math.pi
+            self.sprite_height = self.sprite:getHeight()
+            self.sprite_width = self.sprite:getWidth()
+            self.orientation = math.atan2(self.y - self.sprite_height/2 - mouse_y, self.x - self.sprite_width/2 - mouse_x) + 1.47*math.pi
 
+            if self.invencible then
+                self.time_blinked = self.time_blinked - dt*2
+
+                if math.ceil(self.time_blinked) % 2 == 0 then
+                    self.invencible_seen = false
+                else
+                    self.invencible_seen = true
+                end
+
+                if self.time_blinked <= 0 then
+                    self.invencible = false
+                end
+
+            else
+                self.time_blinked = USABLE_BLINKS
+                self.invencible_seen = false
+            end
+            
             self.exploding = self.explode_time > 0
             
             if not self.exploding then

@@ -6,8 +6,8 @@
 function Text(text, x, y, font_size, fade_in, fade_out, wrap_width, align, opacity)
     font_size = font_size or "p"
     fade_in = fade_in or false
-    fade_out = fade_outze or false
-    wrap_width = wrap_widthe or love.graphics.getWidth()
+    fade_out = fade_out or false
+    wrap_width = wrap_width or love.graphics.getWidth()
     align = align or "left"
     opacity = opacity or 1
 
@@ -63,7 +63,6 @@ function Text(text, x, y, font_size, fade_in, fade_out, wrap_width, align, opaci
                 love.graphics.setFont(fonts["p"])
             else
                 table.remove(table_text, index)
-
                 return false
             end
 

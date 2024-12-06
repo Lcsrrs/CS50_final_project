@@ -82,6 +82,18 @@ function Asteroids(x, y, ast_size, level)
                 table.insert(asteroids_tbl, Asteroids(self.x, self.y, self.radius, game.level))
             end
 
+            if self.radius >= ASTEROID_SIZE / 2 then
+                game.score = game.score + 20
+            elseif self.radius <= MIN_ASTEROID_SIZE then
+                game.score = game.score + 100
+            else
+                game.score = game.score + 50
+            end
+
+            if game.score > game.high_score then
+                game.high_score = game.score
+            end
+
             table.remove(asteroids_tbl, index)
 
         end

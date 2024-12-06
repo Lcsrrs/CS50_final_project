@@ -3,19 +3,26 @@ local Game = require "states/game"
 local Menu = require "states/menu"
 require "globals"
 
+local reset_complete = false
 math.randomseed(os.time())
 
 WINDOW_WIDTH, WINDOW_HEIGHT = love.window.getMode()
---WINDOW_WIDTH, WINDOW_HEIGHT = WINDOW_WIDTH * 0.8, WINDOW_HEIGHT * 0.8
+
+
+function reset()
+    local save_data = readJSON("save")
+
+    player = Player(3)
+    game = Game(save_data)
+    menu = Menu(game, player)
+    detroy_ast = false
+end
 
 function love.load()   
     love.mouse.setVisible(false) 
     love.window.setMode(WINDOW_WIDTH,WINDOW_HEIGHT, {fullscreen = false, vsync = true})
-    
-    player = Player()
-    game = Game()
-    menu = Menu(game, player)
 
+    reset()
 end
 
 function love.update(dt)
@@ -25,7 +32,7 @@ function love.update(dt)
         player:movePlayer(dt)
 
         for ast_index, asteroid in pairs(asteroids) do
-            if not player.exploding then
+            if not player.exploding and not player.invencible then
                 if calculateDistance(player.x, player.y, asteroid.x, asteroid.y) < asteroid.radius then
                     player:explode()
                     destroy_ast = true
@@ -64,10 +71,23 @@ function love.update(dt)
             asteroid:move(dt)
         end
 
+        if #asteroids == 0 then
+            game.level = game.level + 1
+            game:startNewGame(player)
+        end
+
     elseif game.state.menu then
         menu:run(clickedMouse)
         
-        clickMouse = false
+        clickedMouse = false
+
+        if not reset_complete then
+            reset()
+            reset_complete = true
+        end
+
+    elseif game.state.ended then
+        reset_complete = false
     end
     
     if game.state.running then
@@ -130,6 +150,8 @@ function love.draw()
         game:draw(game.state.paused)
     elseif game.state.menu then
         menu:draw()
+    elseif game.state.ended then
+        game:draw()
     end
 
     love.graphics.circle("fill", mouse_x, mouse_y, 10)

@@ -11,12 +11,9 @@ function Menu(game, player)
     }
     
     local buttons = {
-        Button(funcs.newGame, nil, nil, love.graphics.getWidth() /3, 50, "New Game", "center", "h3", love.graphics.getWidth() / 3,
-    love.graphics.getHeight() * 0.25, -love.graphics.getWidth() / 3, false),
-        Button(nil, nil, nil, love.graphics.getWidth() /3, 50, "Settings", "center", "h3", love.graphics.getWidth() / 3,
-    love.graphics.getHeight() * 0.4, -love.graphics.getWidth() / 3, false),
-        Button(funcs.quitGame, nil, nil, love.graphics.getWidth() /3, 50, "Quit", "center", "h3", love.graphics.getWidth() / 3,
-    love.graphics.getHeight() * 0.55, -love.graphics.getWidth() / 3, false),
+        Button(funcs.newGame, nil, nil, love.graphics.getWidth() / 3, 50, "New Game", "center", "h3", love.graphics.getWidth() / 3, love.graphics.getHeight() * 0.25),
+        Button(nil, nil, nil, love.graphics.getWidth() / 3, 50, "Settings", "center", "h3", love.graphics.getWidth() / 3, love.graphics.getHeight() * 0.4),
+        Button(funcs.quitGame, nil, nil, love.graphics.getWidth() / 3, 50, "Quit", "center", "h3", love.graphics.getWidth() / 3, love.graphics.getHeight() * 0.55),
     }
     
     return {

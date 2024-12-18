@@ -41,7 +41,7 @@ function love.update(dt)
                 if calculateDistance(player.x, player.y, asteroid.x, asteroid.y) < asteroid.radius then
                     player:explode()
                     destroy_ast = true
-                end
+                    end
             else
                 player.explode_time = player.explode_time - 1
                 

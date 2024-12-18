@@ -1,6 +1,7 @@
 local Player = require "objects/player"
 local Game = require "states/game"
 local Menu = require "states/menu"
+local SFX = require "components/SFX"
 require "globals"
 
 local reset_complete = false
@@ -12,9 +13,11 @@ WINDOW_WIDTH, WINDOW_HEIGHT = love.window.getMode()
 function reset()
     local save_data = readJSON("save")
 
-    player = Player(3)
-    game = Game(save_data)
-    menu = Menu(game, player)
+    sfx = SFX()
+
+    player = Player(3, sfx)
+    game = Game(save_data, sfx)
+    menu = Menu(game, player, sfx)
     detroy_ast = false
 end
 
@@ -23,6 +26,8 @@ function love.load()
     love.window.setMode(WINDOW_WIDTH,WINDOW_HEIGHT, {fullscreen = false, vsync = true})
 
     reset()
+
+    sfx:playBGM()
 end
 
 function love.update(dt)
@@ -46,7 +51,7 @@ function love.update(dt)
                         return
                     end
 
-                    player = Player(player.lives - 1)
+                    player = Player(player.lives - 1, sfx)
                 end
             end
             for _, laser in pairs(player.lasers) do

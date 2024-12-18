@@ -1,7 +1,7 @@
 local Laser = require "objects/laser"
 require "globals"
 
-function Player(num_lives) 
+function Player(num_lives, sfx) 
     local start_angle = 0
     local LASER_MAX_TIME = 0.025
     local MAX_LASERS = 10
@@ -41,8 +41,9 @@ function Player(num_lives)
                     self.y,
                     self.orientation*(-1) + math.pi/2
                 ))
+
+                sfx:playFX("laser")
             end
-            
         end,
 
         destroyLaser = function(self, index)
@@ -171,7 +172,7 @@ function Player(num_lives)
                         self.thrust.y = self.thrust.y - friction * self.thrust.y / FPS
                     end
                 end
-    
+                
                 if self.thrusting_left then
                     self.thrust.x = self.thrust.x - self.thrust.speed / FPS
                 else
@@ -179,7 +180,7 @@ function Player(num_lives)
                         self.thrust.x = self.thrust.x - friction * self.thrust.x / FPS
                     end
                 end
-    
+                
                 if self.thrusting_down then
                     self.thrust.y = self.thrust.y + self.thrust.speed / FPS
                 else
@@ -187,7 +188,7 @@ function Player(num_lives)
                         self.thrust.y = self.thrust.y - friction * self.thrust.y / FPS
                     end
                 end
-    
+                
                 if self.thrusting_right then
                     self.thrust.x = self.thrust.x + self.thrust.speed / FPS
                 else
@@ -225,6 +226,7 @@ function Player(num_lives)
         
 
         explode = function(self)
+            sfx:playFX("ship_explosion")
             self.explode_time = math.ceil(EXPLODE_DUR * love.timer.getFPS())
         end
     }

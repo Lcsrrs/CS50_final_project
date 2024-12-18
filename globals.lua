@@ -2,7 +2,7 @@ package.path = package.path .. ";libs/?.lua;libs/?/init.lua"
 local lunajson=require "libs/lunajson"
 
 ASTEROID_SIZE = 100
-show_debugging = true
+show_debugging = false
 detroy_ast = false
 
 function calculateDistance(x1, y1, x2, y2)
